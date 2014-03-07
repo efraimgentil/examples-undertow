@@ -1,41 +1,43 @@
 package br.com.efraimgentil.examplesundertow;
 
+import br.com.efraimgentil.examplesundertow.util.HtmlToString;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
 
-public class SimpleServerWithPathHandler {
-
+/**
+ * 
+ * @author Efraim Gentil (efraim.gentil@gmail.com)
+ */
+public class SimpleServerWithHtmlFiles {
+    
     public static void main(String[] args) {
-
+        SimpleServerWithHtmlFiles server = new SimpleServerWithHtmlFiles();
+        server.startServer();
+    }
+    
+    public void startServer(){
         Undertow server = Undertow
                 .builder()
                 .addHttpListener(8080, "localhost")
                 .setHandler(
                         Handlers.path()
-                                .addExactPath("/welcome", new WelcomePage())
-                                .addExactPath("/", new DefaultPage())
+                                .addExactPath("/", new IndexPage())
                 ).build();
         server.start();
-        
     }
-
+    
 }
 
-class DefaultPage implements HttpHandler {
+class IndexPage implements HttpHandler {
+
+    @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
-        exchange.getResponseSender().send("<h1>This is the default page</h1>");
+        String page = new HtmlToString().getHtmlPage("index.html");
+        exchange.getResponseSender().send( page );
     }
-}
-
-class WelcomePage implements HttpHandler {
-
-    public void handleRequest(HttpServerExchange exchange) throws Exception {
-        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
-        exchange.getResponseSender().send(
-                "<h1>Welcome page</h1><p>Hello my friend</p>");
-    }
+    
 }

@@ -1,21 +1,28 @@
 package br.com.efraimgentil.examplesundertow.util;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Scanner;
+
+import br.com.efraimgentil.examplesundertow.util.exception.PaginaInexistenteException;
 
 public class HtmlToString {
 
-    public String getHtmlPage(String page) throws IOException {
+    public String getHtmlPage(String page) throws IOException, PaginaInexistenteException {
         URL url = HtmlToString.class.getResource("/views/" + page);
-        return getFileContentAsString(new File(url.getPath()));
+        if(url == null)
+            throw new PaginaInexistenteException();
+        return getFileContentAsString( url.getPath() );
     }
 
-    public String getFileContentAsString(File file) throws FileNotFoundException {
-        try( Scanner scanner = new Scanner(file, "UTF-8") ){
-            return scanner.useDelimiter("\\A").next();
+    protected String getFileContentAsString(String path) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+            while (br.ready()) {
+                sb.append(br.readLine());
+            }
+            return sb.toString();
         }
     }
 
